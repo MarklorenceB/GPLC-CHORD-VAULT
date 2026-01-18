@@ -209,7 +209,7 @@ const Header = ({
           { id: "all", label: "All Songs", icon: "🎵", count: totalCount },
           {
             id: "favorites",
-            label: "Favorites",
+            label: "Line Up",
             icon: "⭐",
             count: favoritesCount,
           },

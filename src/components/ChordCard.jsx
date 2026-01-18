@@ -15,6 +15,7 @@ const ChordCard = ({
   onEdit,
   onDelete,
   onCopy,
+  onFullscreen, // ← NEW PROP
   copiedId,
 }) => {
   const [transpose, setTranspose] = useState(0);
@@ -49,6 +50,11 @@ const ChordCard = ({
         : ""
     }\n\n${displayProgression}`;
     onCopy(chord.id, text);
+  };
+
+  const handleFullscreen = (e) => {
+    e?.stopPropagation();
+    onFullscreen(chord);
   };
 
   return (
@@ -170,8 +176,34 @@ const ChordCard = ({
               background: t.bg,
               borderRadius: "12px",
               border: `1px solid ${t.border}`,
+              position: "relative",
             }}
           >
+            {/* Fullscreen Button - Top Right of Chord Box */}
+            <button
+              onClick={handleFullscreen}
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                border: `1px solid ${t.border}`,
+                background: t.surface,
+                color: t.textSecondary,
+                fontSize: "14px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
+              }}
+              title="Fullscreen view"
+            >
+              ⛶
+            </button>
+
             <pre
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
@@ -181,8 +213,9 @@ const ChordCard = ({
                 wordBreak: "break-word",
                 margin: 0,
                 color: t.text,
-                maxHeight: "300px",
+                maxHeight: "200px",
                 overflow: "auto",
+                paddingRight: "36px",
               }}
             >
               {displayProgression}
@@ -279,10 +312,30 @@ const ChordCard = ({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateColumns: "repeat(4, 1fr)",
               borderTop: `1px solid ${t.border}`,
             }}
           >
+            {/* Fullscreen Button */}
+            <button
+              onClick={handleFullscreen}
+              style={{
+                padding: "16px",
+                background: "none",
+                border: "none",
+                borderRight: `1px solid ${t.border}`,
+                color: t.accent,
+                fontSize: "14px",
+                fontWeight: "500",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+              }}
+            >
+              <span>⛶</span> View
+            </button>
             <button
               onClick={handleCopy}
               style={{
@@ -344,7 +397,7 @@ const ChordCard = ({
                 gap: "6px",
               }}
             >
-              <span>🗑️</span> Delete
+              <span>🗑️</span>
             </button>
           </div>
         </div>

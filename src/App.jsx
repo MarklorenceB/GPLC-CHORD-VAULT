@@ -20,6 +20,7 @@ import {
   FloatingButton,
   Loading,
   ErrorMessage,
+  FullscreenView, // ← NEW IMPORT
 } from "./components";
 
 function App() {
@@ -50,6 +51,11 @@ function App() {
   const [editingChord, setEditingChord] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FULLSCREEN STATE (NEW)
+  // ─────────────────────────────────────────────────────────────────────────
+  const [fullscreenChord, setFullscreenChord] = useState(null);
 
   // ─────────────────────────────────────────────────────────────────────────
   // FILTERED CHORDS
@@ -133,6 +139,22 @@ function App() {
   };
 
   // ─────────────────────────────────────────────────────────────────────────
+  // FULLSCREEN HANDLERS (NEW)
+  // ─────────────────────────────────────────────────────────────────────────
+  const handleOpenFullscreen = (chord) => {
+    setFullscreenChord(chord);
+  };
+
+  const handleCloseFullscreen = () => {
+    setFullscreenChord(null);
+  };
+
+  // Keep fullscreen chord data in sync if it gets updated
+  const currentFullscreenChord = fullscreenChord
+    ? chords.find((c) => c.id === fullscreenChord.id) || fullscreenChord
+    : null;
+
+  // ─────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -199,6 +221,7 @@ function App() {
                     onEdit={handleOpenEditForm}
                     onDelete={handleDeleteClick}
                     onCopy={handleCopy}
+                    onFullscreen={handleOpenFullscreen} // ← NEW PROP
                     copiedId={copiedId}
                   />
                 ))}
@@ -234,6 +257,17 @@ function App() {
         onClose={() => setDeleteConfirmId(null)}
         onConfirm={handleConfirmDelete}
         isLoading={isSubmitting}
+      />
+
+      {/* ─────────────────────────────────────────────────────────────────────
+          FULLSCREEN VIEW (NEW)
+      ───────────────────────────────────────────────────────────────────── */}
+      <FullscreenView
+        chord={currentFullscreenChord}
+        theme={theme}
+        isOpen={!!fullscreenChord}
+        onClose={handleCloseFullscreen}
+        onToggleFavorite={handleToggleFavorite}
       />
     </div>
   );
