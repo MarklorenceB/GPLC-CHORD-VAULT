@@ -1,77 +1,98 @@
-// components/EmptyState.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-// EMPTY STATE COMPONENT - Displayed when no chords exist
-// ═══════════════════════════════════════════════════════════════════════════
-
 import React from "react";
+import Icon from "./Icon";
 
 const EmptyState = ({ theme: t, hasChords, onAddClick }) => {
   return (
     <div
       style={{
         textAlign: "center",
-        padding: "60px 20px",
+        padding: "80px 24px 40px",
+        maxWidth: "460px",
+        margin: "0 auto",
       }}
     >
       <div
         style={{
-          width: "80px",
-          height: "80px",
-          borderRadius: "20px",
-          background: t.surfaceHover,
+          width: "72px",
+          height: "72px",
+          borderRadius: "999px",
+          background: t.bg,
+          border: `1px solid ${t.border}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          margin: "0 auto 20px",
-          fontSize: "36px",
+          margin: "0 auto 22px",
+          color: t.ornament,
         }}
       >
-        {hasChords ? "🔍" : "🎸"}
+        <Icon name={hasChords ? "search" : "notes"} size={26} />
+      </div>
+
+      <div
+        className="eyebrow"
+        style={{ color: t.ornament, marginBottom: "10px" }}
+      >
+        {hasChords ? "· No Matches ·" : "· Begin ·"}
       </div>
 
       <h3
         style={{
-          fontSize: "20px",
-          fontWeight: "600",
-          marginBottom: "8px",
-          margin: "0 0 8px 0",
+          fontFamily: "var(--font-display)",
+          fontSize: "26px",
+          fontWeight: 400,
+          fontStyle: "italic",
+          fontVariationSettings: '"opsz" 72, "SOFT" 60',
+          letterSpacing: "-0.02em",
+          margin: "0 0 10px 0",
+          color: t.text,
         }}
       >
-        {hasChords ? "No Results Found" : "Start Your Collection"}
+        {hasChords ? "Nothing found in the book." : "The book is empty."}
       </h3>
 
       <p
         style={{
           color: t.textSecondary,
           fontSize: "15px",
-          marginBottom: "24px",
-          margin: "0 0 24px 0",
+          lineHeight: 1.6,
+          marginBottom: "26px",
+          margin: "0 0 26px 0",
         }}
       >
         {hasChords
-          ? "Try adjusting your search or filters"
-          : "Add your first chord sheet to get started"}
+          ? "Try a different search, another key, or clear the filters."
+          : "Inscribe your first chord sheet to start building your worship hymnal."}
       </p>
 
       {!hasChords && (
         <button
           onClick={onAddClick}
           style={{
-            padding: "14px 28px",
+            padding: "14px 22px",
             borderRadius: "12px",
             border: "none",
             background: t.accent,
-            color: "#fff",
-            fontSize: "15px",
-            fontWeight: "600",
+            color: t.accentInk,
+            fontSize: "14px",
+            fontWeight: 600,
+            letterSpacing: "0.04em",
             cursor: "pointer",
             display: "inline-flex",
             alignItems: "center",
-            gap: "8px",
+            gap: "10px",
           }}
         >
-          <span style={{ fontSize: "18px" }}>+</span>
-          Add First Chord
+          <Icon name="plus" size={16} />
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontStyle: "italic",
+              fontSize: "16px",
+              fontWeight: 500,
+            }}
+          >
+            Add the first hymn
+          </span>
         </button>
       )}
     </div>

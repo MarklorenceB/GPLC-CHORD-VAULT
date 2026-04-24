@@ -1,10 +1,6 @@
-// components/ChordCard.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-// CHORD CARD COMPONENT - Expandable card for each chord entry
-// ═══════════════════════════════════════════════════════════════════════════
-
 import React, { useState } from "react";
 import { transposeChord } from "../utils/transpose";
+import Icon from "./Icon";
 
 const ChordCard = ({
   chord,
@@ -15,7 +11,7 @@ const ChordCard = ({
   onEdit,
   onDelete,
   onCopy,
-  onFullscreen, // ← NEW PROP
+  onFullscreen,
   copiedId,
 }) => {
   const [transpose, setTranspose] = useState(0);
@@ -42,11 +38,11 @@ const ChordCard = ({
 
   const handleCopy = async (e) => {
     e?.stopPropagation();
-    const text = `${chord.title} - ${chord.artist}\nKey: ${chord.key}${
-      chord.capo ? ` | Capo: ${chord.capo}` : ""
+    const text = `${chord.title} — ${chord.artist}\nKey: ${chord.key}${
+      chord.capo ? ` · Capo: ${chord.capo}` : ""
     }${
       transpose !== 0
-        ? ` | Transposed: ${transpose > 0 ? "+" : ""}${transpose}`
+        ? ` · Transposed: ${transpose > 0 ? "+" : ""}${transpose}`
         : ""
     }\n\n${displayProgression}`;
     onCopy(chord.id, text);
@@ -58,157 +54,204 @@ const ChordCard = ({
   };
 
   return (
-    <div
+    <article
       onClick={onToggleExpand}
       style={{
         background: t.card,
-        borderRadius: "16px",
+        borderRadius: "18px",
         border: `1px solid ${t.border}`,
         overflow: "hidden",
         cursor: "pointer",
-        transition: "all 0.2s ease",
+        transition: "border-color 0.25s, transform 0.25s, box-shadow 0.25s",
+        boxShadow: isExpanded ? t.shadow : "none",
+        position: "relative",
+      }}
+      onMouseEnter={(e) => {
+        if (!isExpanded) e.currentTarget.style.borderColor = t.borderLight;
+      }}
+      onMouseLeave={(e) => {
+        if (!isExpanded) e.currentTarget.style.borderColor = t.border;
       }}
     >
-      {/* Card Header */}
+      {/* Gilt edge on expanded */}
+      {isExpanded && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: "3px",
+            background: `linear-gradient(to bottom, transparent, ${t.accent}, transparent)`,
+          }}
+        />
+      )}
+
       <div
         style={{
-          padding: "16px",
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "12px",
+          padding: "18px 18px 16px",
+          display: "grid",
+          gridTemplateColumns: "auto 1fr auto",
+          columnGap: "14px",
+          alignItems: "start",
         }}
       >
-        {/* Favorite Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleFavorite(chord.id);
           }}
+          aria-label={chord.favorite ? "Remove from Line Up" : "Add to Line Up"}
           style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "12px",
+            width: "36px",
+            height: "36px",
+            borderRadius: "10px",
             border: "none",
-            background: chord.favorite
-              ? "rgba(251,191,36,0.15)"
-              : t.surfaceHover,
-            color: chord.favorite ? "#fbbf24" : t.textTertiary,
-            fontSize: "20px",
+            background: chord.favorite ? t.accentSoft : "transparent",
+            color: chord.favorite ? t.accent : t.textTertiary,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            flexShrink: 0,
-            transition: "all 0.2s ease",
+            transition: "all 0.2s",
+            marginTop: "2px",
           }}
         >
-          {chord.favorite ? "★" : "☆"}
+          <Icon name={chord.favorite ? "starFill" : "star"} size={17} />
         </button>
 
-        {/* Title & Artist */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Title & artist */}
+        <div style={{ minWidth: 0 }}>
           <h3
             style={{
-              fontSize: "16px",
-              fontWeight: "600",
-              marginBottom: "4px",
+              fontFamily: "var(--font-display)",
+              fontSize: "20px",
+              fontWeight: 500,
+              fontVariationSettings: '"opsz" 36',
+              letterSpacing: "-0.015em",
+              lineHeight: 1.15,
+              margin: "0 0 4px 0",
+              color: t.text,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              margin: 0,
             }}
           >
             {chord.title}
           </h3>
           <p
             style={{
-              fontSize: "14px",
+              fontSize: "13px",
+              fontStyle: "italic",
               color: t.textSecondary,
+              margin: 0,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              margin: 0,
             }}
           >
             {chord.artist}
           </p>
         </div>
 
-        {/* Meta Badges */}
-        <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+        {/* Key & capo */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "6px",
+            flexShrink: 0,
+          }}
+        >
           <span
             style={{
-              padding: "6px 10px",
-              borderRadius: "8px",
+              padding: "5px 10px",
+              borderRadius: "6px",
               background: t.accentSoft,
               color: t.accent,
-              fontSize: "12px",
-              fontWeight: "600",
+              fontFamily: "var(--font-display)",
+              fontSize: "13px",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+              minWidth: "32px",
+              textAlign: "center",
             }}
           >
             {chord.key}
           </span>
           {chord.capo && (
             <span
+              className="eyebrow"
               style={{
-                padding: "6px 10px",
-                borderRadius: "8px",
-                background: t.surfaceHover,
-                color: t.textSecondary,
-                fontSize: "12px",
-                fontWeight: "600",
+                color: t.textTertiary,
+                fontSize: "9px",
               }}
             >
-              C{chord.capo}
+              Capo {chord.capo}
             </span>
           )}
         </div>
       </div>
 
-      {/* Expanded Content */}
       {isExpanded && (
-        <div style={{ animation: "fadeIn 0.2s ease" }}>
-          {/* Chord Progression */}
+        <div style={{ animation: "fadeIn 0.3s var(--ease-out)" }}>
+          {/* Ornamental divider */}
           <div
             style={{
-              margin: "0 16px 12px",
-              padding: "16px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "0 20px",
+              color: t.ornament,
+            }}
+          >
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.25 }} />
+            <span style={{ fontSize: "10px", opacity: 0.65 }}>✦</span>
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.25 }} />
+          </div>
+
+          {/* Progression */}
+          <div
+            style={{
+              margin: "14px 18px 14px",
+              padding: "18px 18px 18px",
               background: t.bg,
               borderRadius: "12px",
-              border: `1px solid ${t.border}`,
+              border: `1px solid ${t.rule}`,
               position: "relative",
             }}
           >
-            {/* Fullscreen Button - Top Right of Chord Box */}
             <button
               onClick={handleFullscreen}
+              aria-label="Open fullscreen"
               style={{
                 position: "absolute",
-                top: "8px",
-                right: "8px",
-                width: "32px",
-                height: "32px",
+                top: "10px",
+                right: "10px",
+                width: "30px",
+                height: "30px",
                 borderRadius: "8px",
                 border: `1px solid ${t.border}`,
                 background: t.surface,
                 color: t.textSecondary,
-                fontSize: "14px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                transition: "all 0.2s ease",
+                transition: "all 0.2s",
               }}
-              title="Fullscreen view"
             >
-              ⛶
+              <Icon name="expand" size={14} />
             </button>
 
             <pre
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: "14px",
-                lineHeight: "1.7",
+                fontFamily: "var(--font-mono)",
+                fontSize: "13.5px",
+                fontWeight: 500,
+                lineHeight: 1.8,
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
                 margin: 0,
@@ -216,32 +259,26 @@ const ChordCard = ({
                 maxHeight: "200px",
                 overflow: "auto",
                 paddingRight: "36px",
+                letterSpacing: "0.01em",
               }}
             >
               {displayProgression}
             </pre>
           </div>
 
-          {/* Transpose Controls */}
+          {/* Transpose */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              gap: "16px",
-              padding: "12px 16px",
-              background: t.surfaceHover,
-              borderTop: `1px solid ${t.border}`,
+              justifyContent: "space-between",
+              gap: "14px",
+              padding: "0 20px 14px",
             }}
           >
             <span
-              style={{
-                fontSize: "12px",
-                fontWeight: "600",
-                color: t.textSecondary,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
+              className="eyebrow"
+              style={{ color: t.textSecondary, fontSize: "10px" }}
             >
               Transpose
             </span>
@@ -249,160 +286,147 @@ const ChordCard = ({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "4px",
                 background: t.bg,
-                padding: "4px",
+                padding: "3px",
                 borderRadius: "10px",
                 border: `1px solid ${t.border}`,
               }}
             >
               <button
                 onClick={(e) => handleTranspose(-1, e)}
+                aria-label="Transpose down"
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "34px",
+                  height: "32px",
                   borderRadius: "8px",
                   border: "none",
-                  background: t.surface,
+                  background: "transparent",
                   color: t.text,
-                  fontSize: "18px",
-                  fontWeight: "600",
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                −
+                <Icon name="minus" size={14} />
               </button>
               <span
                 onClick={resetTranspose}
+                title="Reset"
+                className="catalog-num"
                 style={{
-                  width: "48px",
+                  minWidth: "44px",
                   textAlign: "center",
-                  fontSize: "15px",
-                  fontWeight: "700",
+                  fontSize: "14px",
+                  fontWeight: 700,
                   color: transpose !== 0 ? t.accent : t.textSecondary,
                   cursor: "pointer",
                 }}
               >
                 {transpose === 0
-                  ? "0"
+                  ? "±0"
                   : transpose > 0
                   ? `+${transpose}`
-                  : transpose}
+                  : `${transpose}`}
               </span>
               <button
                 onClick={(e) => handleTranspose(1, e)}
+                aria-label="Transpose up"
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "34px",
+                  height: "32px",
                   borderRadius: "8px",
                   border: "none",
-                  background: t.surface,
+                  background: "transparent",
                   color: t.text,
-                  fontSize: "18px",
-                  fontWeight: "600",
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                +
+                <Icon name="plus" size={14} />
               </button>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              borderTop: `1px solid ${t.border}`,
+              borderTop: `1px solid ${t.rule}`,
             }}
           >
-            {/* Fullscreen Button */}
-            <button
+            <CardAction
+              theme={t}
+              icon="expand"
+              label="View"
               onClick={handleFullscreen}
-              style={{
-                padding: "16px",
-                background: "none",
-                border: "none",
-                borderRight: `1px solid ${t.border}`,
-                color: t.accent,
-                fontSize: "14px",
-                fontWeight: "500",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-              }}
-            >
-              <span>⛶</span> View
-            </button>
-            <button
+              isAccent
+            />
+            <CardAction
+              theme={t}
+              icon={copiedId === chord.id ? "check" : "copy"}
+              label={copiedId === chord.id ? "Copied" : "Copy"}
               onClick={handleCopy}
-              style={{
-                padding: "16px",
-                background: "none",
-                border: "none",
-                borderRight: `1px solid ${t.border}`,
-                color: copiedId === chord.id ? t.success : t.text,
-                fontSize: "14px",
-                fontWeight: "500",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-              }}
-            >
-              <span>{copiedId === chord.id ? "✓" : "📋"}</span>
-              {copiedId === chord.id ? "Copied!" : "Copy"}
-            </button>
-            <button
+              isSuccess={copiedId === chord.id}
+            />
+            <CardAction
+              theme={t}
+              icon="pencil"
+              label="Edit"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(chord);
               }}
-              style={{
-                padding: "16px",
-                background: "none",
-                border: "none",
-                borderRight: `1px solid ${t.border}`,
-                color: t.text,
-                fontSize: "14px",
-                fontWeight: "500",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-              }}
-            >
-              <span>✏️</span> Edit
-            </button>
-            <button
+            />
+            <CardAction
+              theme={t}
+              icon="trash"
+              label="Delete"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(chord.id);
               }}
-              style={{
-                padding: "16px",
-                background: "none",
-                border: "none",
-                color: t.danger,
-                fontSize: "14px",
-                fontWeight: "500",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-              }}
-            >
-              <span>🗑️</span>
-            </button>
+              isDanger
+              noBorder
+            />
           </div>
         </div>
       )}
-    </div>
+    </article>
+  );
+};
+
+const CardAction = ({ theme: t, icon, label, onClick, isAccent, isDanger, isSuccess, noBorder }) => {
+  const color = isAccent ? t.accent : isDanger ? t.danger : isSuccess ? t.success : t.text;
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: "14px 6px",
+        background: "none",
+        border: "none",
+        borderRight: noBorder ? "none" : `1px solid ${t.rule}`,
+        color,
+        fontSize: "12px",
+        fontWeight: 500,
+        letterSpacing: "0.04em",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "6px",
+        transition: "background 0.15s",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = t.surfaceHover)}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+    >
+      <Icon name={icon} size={15} />
+      <span>{label}</span>
+    </button>
   );
 };
 

@@ -159,12 +159,15 @@ function App() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div
+      className="paper-grain"
+      data-dark={darkMode ? "true" : "false"}
       style={{
         minHeight: "100vh",
         background: theme.bg,
         color: theme.text,
         paddingBottom: "80px",
-        transition: "background 0.3s ease",
+        transition: "background 0.4s ease, color 0.4s ease",
+        position: "relative",
       }}
     >
       {/* Header */}
@@ -185,9 +188,11 @@ function App() {
       {/* Main Content */}
       <main
         style={{
-          padding: "16px",
+          padding: "20px 16px 16px",
           maxWidth: "1400px",
           margin: "0 auto",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Loading State */}
@@ -203,11 +208,12 @@ function App() {
           <>
             {filteredChords.length > 0 ? (
               <div
-                className="grid-cards"
+                className="grid-cards card-stagger"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr",
-                  gap: "12px",
+                  gap: "14px",
+                  alignItems: "start",
                 }}
               >
                 {filteredChords.map((chord) => (
@@ -221,7 +227,7 @@ function App() {
                     onEdit={handleOpenEditForm}
                     onDelete={handleDeleteClick}
                     onCopy={handleCopy}
-                    onFullscreen={handleOpenFullscreen} // ← NEW PROP
+                    onFullscreen={handleOpenFullscreen}
                     copiedId={copiedId}
                   />
                 ))}

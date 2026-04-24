@@ -1,9 +1,13 @@
-/* styles/globals.css */
-/* ═══════════════════════════════════════════════════════════════════════════
-   GLOBAL STYLES & ANIMATIONS
-   ═══════════════════════════════════════════════════════════════════════════ */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
 
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap");
+:root {
+  --font-display: "Fraunces", "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
 
 * {
   box-sizing: border-box;
@@ -13,7 +17,11 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-ui);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 input,
@@ -21,24 +29,132 @@ select,
 textarea,
 button {
   font-family: inherit;
+  font-feature-settings: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-ui);
+  font-style: italic;
+  opacity: 0.5;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  padding-right: 40px !important;
+}
+
+/* Paper grain — subtle, warm noise only at low opacity */
+.paper-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.paper-grain[data-dark="true"]::before {
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.88 0 0 0 0 0.75 0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* Animations */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: currentColor;
+  opacity: 0.15;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Selection mirrors the accent */
+::selection {
+  background: rgba(107, 39, 55, 0.22);
+  color: inherit;
+}
+
+/* ── Reusable display flourishes ─────────────────────────────── */
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.eyebrow {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.small-caps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+}
+
+.catalog-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: "opsz" 14;
+  font-feature-settings: "tnum", "lnum";
+  letter-spacing: 0.04em;
+}
+
+.ornament {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-style: italic;
+}
+.ornament::before,
+.ornament::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.18;
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+
 @keyframes slideUp {
   from {
-    transform: translateY(100%);
+    transform: translateY(8%);
+    opacity: 0;
   }
   to {
     transform: translateY(0);
+    opacity: 1;
   }
 }
 
@@ -53,7 +169,7 @@ button {
 
 @keyframes scaleIn {
   from {
-    transform: scale(0.95);
+    transform: scale(0.96);
     opacity: 0;
   }
   to {
@@ -65,10 +181,10 @@ button {
 @keyframes pulse {
   0%,
   100% {
-    transform: scale(1);
+    opacity: 1;
   }
   50% {
-    transform: scale(1.05);
+    opacity: 0.55;
   }
 }
 
@@ -81,10 +197,31 @@ button {
   }
 }
 
-/* Responsive Grid */
+@keyframes riseIn {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes inkBlot {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ── Responsive Grid ────────────────────────────────────────── */
 @media (min-width: 768px) {
   .grid-cards {
     grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
   }
 }
 
@@ -94,8 +231,31 @@ button {
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1440px) {
   .grid-cards {
     grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* Staggered reveal for card grid entries */
+.card-stagger > * {
+  animation: riseIn 0.5s var(--ease-out) both;
+}
+.card-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.card-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.card-stagger > *:nth-child(3) { animation-delay: 0.10s; }
+.card-stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.card-stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.card-stagger > *:nth-child(6) { animation-delay: 0.22s; }
+.card-stagger > *:nth-child(7) { animation-delay: 0.26s; }
+.card-stagger > *:nth-child(8) { animation-delay: 0.30s; }
+.card-stagger > *:nth-child(n + 9) { animation-delay: 0.34s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

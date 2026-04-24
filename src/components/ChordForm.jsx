@@ -1,10 +1,41 @@
-// components/ChordForm.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-// CHORD FORM COMPONENT - Bottom sheet modal for add/edit
-// ═══════════════════════════════════════════════════════════════════════════
-
 import React, { useState, useEffect } from "react";
 import { MUSICAL_KEYS } from "../styles/theme";
+import Icon from "./Icon";
+
+const labelStyle = (t) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  fontFamily: "var(--font-ui)",
+  fontSize: "10px",
+  fontWeight: 700,
+  color: t.textSecondary,
+  marginBottom: "8px",
+  textTransform: "uppercase",
+  letterSpacing: "0.18em",
+});
+
+const inputStyle = (t) => ({
+  width: "100%",
+  padding: "13px 16px",
+  borderRadius: "12px",
+  border: `1px solid ${t.border}`,
+  background: t.bg,
+  color: t.text,
+  fontSize: "15px",
+  outline: "none",
+  boxSizing: "border-box",
+  transition: "border-color 0.2s, box-shadow 0.2s",
+});
+
+const focusOn = (t) => (e) => {
+  e.target.style.borderColor = t.accent;
+  e.target.style.boxShadow = `0 0 0 3px ${t.accentSoft}`;
+};
+const focusOff = (t) => (e) => {
+  e.target.style.borderColor = t.border;
+  e.target.style.boxShadow = "none";
+};
 
 const ChordForm = ({
   theme: t,
@@ -22,7 +53,6 @@ const ChordForm = ({
     progression: "",
   });
 
-  // Reset form when opening/closing or editing different chord
   useEffect(() => {
     if (editingChord) {
       setFormData({
@@ -56,35 +86,31 @@ const ChordForm = ({
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.6)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(12, 9, 6, 0.55)",
+        backdropFilter: "blur(6px)",
         zIndex: 200,
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
-        animation: "fadeIn 0.2s ease",
+        animation: "fadeIn 0.25s var(--ease-out)",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",
-          maxWidth: "600px",
-          maxHeight: "90vh",
+          maxWidth: "560px",
+          maxHeight: "92vh",
           background: t.surface,
           borderRadius: "24px 24px 0 0",
           overflow: "hidden",
-          animation: "slideUp 0.3s ease",
+          animation: "slideUp 0.35s var(--ease-out)",
+          boxShadow: "0 -20px 60px -10px rgba(0,0,0,0.4)",
+          borderTop: `1px solid ${t.borderLight}`,
         }}
       >
         {/* Handle */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            padding: "12px",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "center", padding: "10px" }}>
           <div
             style={{
               width: "40px",
@@ -99,159 +125,119 @@ const ChordForm = ({
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "space-between",
-            padding: "0 20px 16px",
-            borderBottom: `1px solid ${t.border}`,
+            padding: "0 24px 18px",
+            borderBottom: `1px solid ${t.rule}`,
           }}
         >
-          <h2
-            style={{
-              fontSize: "20px",
-              fontWeight: "700",
-              margin: 0,
-            }}
-          >
-            {editingChord ? "Edit Chord" : "Add New Chord"}
-          </h2>
+          <div>
+            <div
+              className="eyebrow"
+              style={{ color: t.ornament, marginBottom: "6px" }}
+            >
+              {editingChord ? "· Revise ·" : "· New Entry ·"}
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "26px",
+                fontWeight: 400,
+                fontStyle: "italic",
+                fontVariationSettings: '"opsz" 72, "SOFT" 60',
+                letterSpacing: "-0.02em",
+                margin: 0,
+                color: t.text,
+              }}
+            >
+              {editingChord ? "Edit Chord" : "Add New Chord"}
+            </h2>
+          </div>
           <button
             onClick={onClose}
+            aria-label="Close"
             style={{
               width: "36px",
               height: "36px",
               borderRadius: "10px",
-              border: "none",
-              background: t.surfaceHover,
+              border: `1px solid ${t.border}`,
+              background: t.bg,
               color: t.textSecondary,
-              fontSize: "18px",
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-            ×
+            <Icon name="close" size={16} />
           </button>
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           style={{
-            padding: "20px",
+            padding: "22px 24px 24px",
             overflowY: "auto",
-            maxHeight: "calc(90vh - 140px)",
+            maxHeight: "calc(92vh - 150px)",
           }}
         >
-          {/* Title */}
-          <div style={{ marginBottom: "16px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: t.textSecondary,
-                marginBottom: "8px",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Song Title *
+          <div style={{ marginBottom: "18px" }}>
+            <label style={labelStyle(t)}>
+              <span style={{ color: t.ornament }}>—</span> Song Title *
             </label>
             <input
               type="text"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              placeholder="Enter song title"
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Great is Thy Faithfulness"
               required
               style={{
-                width: "100%",
-                padding: "14px 16px",
-                borderRadius: "12px",
-                border: `1px solid ${t.border}`,
-                background: t.bg,
-                color: t.text,
-                fontSize: "16px",
-                outline: "none",
-                boxSizing: "border-box",
+                ...inputStyle(t),
+                fontFamily: "var(--font-display)",
+                fontSize: "18px",
+                fontWeight: 500,
               }}
+              onFocus={focusOn(t)}
+              onBlur={focusOff(t)}
             />
           </div>
 
-          {/* Artist */}
-          <div style={{ marginBottom: "16px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: t.textSecondary,
-                marginBottom: "8px",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Artist *
+          <div style={{ marginBottom: "18px" }}>
+            <label style={labelStyle(t)}>
+              <span style={{ color: t.ornament }}>—</span> Artist *
             </label>
             <input
               type="text"
               value={formData.artist}
-              onChange={(e) =>
-                setFormData({ ...formData, artist: e.target.value })
-              }
-              placeholder="Enter artist name"
+              onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
+              placeholder="e.g. Hillsong Worship"
               required
-              style={{
-                width: "100%",
-                padding: "14px 16px",
-                borderRadius: "12px",
-                border: `1px solid ${t.border}`,
-                background: t.bg,
-                color: t.text,
-                fontSize: "16px",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
+              style={inputStyle(t)}
+              onFocus={focusOn(t)}
+              onBlur={focusOff(t)}
             />
           </div>
 
-          {/* Key & Capo Row */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: "12px",
-              marginBottom: "16px",
+              gap: "14px",
+              marginBottom: "18px",
             }}
           >
             <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                  color: t.textSecondary,
-                  marginBottom: "8px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Key
+              <label style={labelStyle(t)}>
+                <span style={{ color: t.ornament }}>—</span> Key
               </label>
               <select
                 value={formData.key}
-                onChange={(e) =>
-                  setFormData({ ...formData, key: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, key: e.target.value })}
                 style={{
-                  width: "100%",
-                  padding: "14px 16px",
-                  borderRadius: "12px",
-                  border: `1px solid ${t.border}`,
-                  background: t.bg,
-                  color: t.text,
-                  fontSize: "16px",
+                  ...inputStyle(t),
+                  fontFamily: "var(--font-display)",
                   cursor: "pointer",
-                  boxSizing: "border-box",
                 }}
               >
                 {MUSICAL_KEYS.map((key) => (
@@ -263,101 +249,57 @@ const ChordForm = ({
             </div>
 
             <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                  color: t.textSecondary,
-                  marginBottom: "8px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Capo
+              <label style={labelStyle(t)}>
+                <span style={{ color: t.ornament }}>—</span> Capo
               </label>
               <input
                 type="text"
                 value={formData.capo}
-                onChange={(e) =>
-                  setFormData({ ...formData, capo: e.target.value })
-                }
-                placeholder="e.g., 2"
-                style={{
-                  width: "100%",
-                  padding: "14px 16px",
-                  borderRadius: "12px",
-                  border: `1px solid ${t.border}`,
-                  background: t.bg,
-                  color: t.text,
-                  fontSize: "16px",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
+                onChange={(e) => setFormData({ ...formData, capo: e.target.value })}
+                placeholder="2"
+                style={inputStyle(t)}
+                onFocus={focusOn(t)}
+                onBlur={focusOff(t)}
               />
             </div>
           </div>
 
-          {/* Progression */}
           <div style={{ marginBottom: "24px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: t.textSecondary,
-                marginBottom: "8px",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Chord Progression *
+            <label style={labelStyle(t)}>
+              <span style={{ color: t.ornament }}>—</span> Chord Progression *
             </label>
             <textarea
               value={formData.progression}
-              onChange={(e) =>
-                setFormData({ ...formData, progression: e.target.value })
-              }
-              placeholder={"Verse: G  Em  C  D\nChorus: C  G  Am  F"}
+              onChange={(e) => setFormData({ ...formData, progression: e.target.value })}
+              placeholder={"Verse:    G   Em   C   D\nChorus:   C   G   Am  F"}
               required
               style={{
-                width: "100%",
-                padding: "14px 16px",
-                borderRadius: "12px",
-                border: `1px solid ${t.border}`,
-                background: t.bg,
-                color: t.text,
-                fontSize: "15px",
-                fontFamily: "'JetBrains Mono', monospace",
-                lineHeight: "1.6",
-                minHeight: "160px",
+                ...inputStyle(t),
+                fontFamily: "var(--font-mono)",
+                fontSize: "14px",
+                lineHeight: 1.75,
+                minHeight: "170px",
                 resize: "vertical",
-                outline: "none",
-                boxSizing: "border-box",
               }}
+              onFocus={focusOn(t)}
+              onBlur={focusOff(t)}
             />
           </div>
 
-          {/* Action Buttons */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "12px",
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "12px" }}>
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
               style={{
-                padding: "16px",
+                padding: "15px",
                 borderRadius: "12px",
                 border: `1px solid ${t.border}`,
                 background: "transparent",
                 color: t.text,
-                fontSize: "16px",
-                fontWeight: "600",
+                fontSize: "14px",
+                fontWeight: 600,
+                letterSpacing: "0.04em",
                 cursor: isLoading ? "not-allowed" : "pointer",
                 opacity: isLoading ? 0.5 : 1,
               }}
@@ -368,34 +310,41 @@ const ChordForm = ({
               type="submit"
               disabled={isLoading}
               style={{
-                padding: "16px",
+                padding: "15px",
                 borderRadius: "12px",
                 border: "none",
                 background: t.accent,
-                color: "#fff",
-                fontSize: "16px",
-                fontWeight: "600",
+                color: t.accentInk,
+                fontSize: "14px",
+                fontWeight: 700,
+                letterSpacing: "0.04em",
                 cursor: isLoading ? "not-allowed" : "pointer",
                 opacity: isLoading ? 0.7 : 1,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px",
+                gap: "10px",
+                transition: "transform 0.15s",
               }}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.98)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               {isLoading && (
                 <span
                   style={{
-                    width: "16px",
-                    height: "16px",
-                    border: "2px solid rgba(255,255,255,0.3)",
-                    borderTopColor: "#fff",
+                    width: "14px",
+                    height: "14px",
+                    border: `2px solid ${t.accentInk}`,
+                    borderTopColor: "transparent",
+                    opacity: 0.7,
                     borderRadius: "50%",
                     animation: "spin 0.8s linear infinite",
                   }}
                 />
               )}
-              {editingChord ? "Save Changes" : "Add Chord"}
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "16px", fontWeight: 500 }}>
+                {editingChord ? "Save Changes" : "Add Chord"}
+              </span>
             </button>
           </div>
         </form>

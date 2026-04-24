@@ -1,11 +1,11 @@
 {
-  "name": "Chord Vault",
-  "short_name": "ChordVault",
-  "description": "Save and organize your chord progressions",
+  "name": "GPLC Worship Chords",
+  "short_name": "GPLC Chords",
+  "description": "A modern hymnal for worship chord progressions",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0c",
-  "theme_color": "#6366f1",
+  "background_color": "#14100b",
+  "theme_color": "#c9a961",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

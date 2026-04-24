@@ -1,10 +1,6 @@
-// components/FullscreenView.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-// FULLSCREEN VIEW COMPONENT - Zoomed chord viewing with controls
-// ═══════════════════════════════════════════════════════════════════════════
-
 import React, { useState, useEffect } from "react";
 import { transposeChord } from "../utils/transpose";
+import Icon from "./Icon";
 
 const FullscreenView = ({
   chord,
@@ -14,38 +10,33 @@ const FullscreenView = ({
   onToggleFavorite,
 }) => {
   const [transpose, setTranspose] = useState(0);
-  const [fontSize, setFontSize] = useState(18);
+  const [fontSize, setFontSize] = useState(20);
   const [scrollMode, setScrollMode] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState(50);
+  const [copied, setCopied] = useState(false);
 
-  // Reset states when opening new chord
   useEffect(() => {
     if (isOpen) {
       setTranspose(0);
-      setFontSize(18);
+      setFontSize(20);
       setScrollMode(false);
     }
   }, [isOpen, chord?.id]);
 
-  // Auto-scroll functionality
   useEffect(() => {
     let scrollInterval;
     if (scrollMode && isOpen) {
       scrollInterval = setInterval(() => {
         const container = document.getElementById("fullscreen-chord-content");
-        if (container) {
-          container.scrollTop += 1;
-        }
+        if (container) container.scrollTop += 1;
       }, 100 - scrollSpeed);
     }
     return () => clearInterval(scrollInterval);
   }, [scrollMode, scrollSpeed, isOpen]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
-
       switch (e.key) {
         case "Escape":
           onClose();
@@ -60,7 +51,7 @@ const FullscreenView = ({
           break;
         case "+":
         case "=":
-          setFontSize((prev) => Math.min(prev + 2, 36));
+          setFontSize((prev) => Math.min(prev + 2, 40));
           break;
         case "-":
           setFontSize((prev) => Math.max(prev - 2, 12));
@@ -73,7 +64,6 @@ const FullscreenView = ({
           break;
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
@@ -95,15 +85,17 @@ const FullscreenView = ({
   };
 
   const handleCopy = async () => {
-    const text = `${chord.title} - ${chord.artist}\nKey: ${chord.key}${
-      chord.capo ? ` | Capo: ${chord.capo}` : ""
+    const text = `${chord.title} — ${chord.artist}\nKey: ${chord.key}${
+      chord.capo ? ` · Capo: ${chord.capo}` : ""
     }${
       transpose !== 0
-        ? ` | Transposed: ${transpose > 0 ? "+" : ""}${transpose}`
+        ? ` · Transposed: ${transpose > 0 ? "+" : ""}${transpose}`
         : ""
     }\n\n${displayProgression}`;
     try {
       await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -118,67 +110,92 @@ const FullscreenView = ({
         zIndex: 1000,
         display: "flex",
         flexDirection: "column",
-        animation: "fadeIn 0.2s ease",
+        animation: "fadeIn 0.25s var(--ease-out)",
       }}
     >
-      {/* ─────────────────────────────────────────────────────────────────────
-          TOP HEADER BAR
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* Decorative vignette */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          background: `radial-gradient(ellipse at top, ${t.accentSoft} 0%, transparent 55%)`,
+          opacity: 0.6,
+        }}
+      />
+
+      {/* Top bar */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px",
-          borderBottom: `1px solid ${t.border}`,
+          padding: "14px 18px",
+          borderBottom: `1px solid ${t.rule}`,
           background: t.surface,
           flexShrink: 0,
+          position: "relative",
+          zIndex: 2,
         }}
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close"
           style={{
             width: "40px",
             height: "40px",
             borderRadius: "10px",
-            border: "none",
-            background: t.surfaceHover,
+            border: `1px solid ${t.border}`,
+            background: t.bg,
             color: t.text,
-            fontSize: "20px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          ←
+          <Icon name="arrowLeft" size={18} />
         </button>
 
-        {/* Song Info */}
         <div
           style={{
             flex: 1,
             textAlign: "center",
-            padding: "0 12px",
+            padding: "0 14px",
             minWidth: 0,
           }}
         >
+          <div
+            className="eyebrow"
+            style={{
+              color: t.ornament,
+              marginBottom: "2px",
+              fontSize: "9px",
+            }}
+          >
+            · Now reading ·
+          </div>
           <h2
             style={{
-              fontSize: "16px",
-              fontWeight: "600",
-              margin: "0 0 2px 0",
+              fontFamily: "var(--font-display)",
+              fontSize: "17px",
+              fontWeight: 500,
+              fontStyle: "italic",
+              fontVariationSettings: '"opsz" 36',
+              letterSpacing: "-0.01em",
+              margin: 0,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              color: t.text,
             }}
           >
             {chord.title}
           </h2>
           <p
             style={{
-              fontSize: "13px",
+              fontSize: "12px",
               color: t.textSecondary,
               margin: 0,
               whiteSpace: "nowrap",
@@ -190,149 +207,149 @@ const FullscreenView = ({
           </p>
         </div>
 
-        {/* Favorite Button */}
         <button
           onClick={() => onToggleFavorite(chord.id)}
+          aria-label="Toggle favorite"
           style={{
             width: "40px",
             height: "40px",
             borderRadius: "10px",
-            border: "none",
-            background: chord.favorite
-              ? "rgba(251,191,36,0.15)"
-              : t.surfaceHover,
-            color: chord.favorite ? "#fbbf24" : t.textTertiary,
-            fontSize: "20px",
+            border: `1px solid ${chord.favorite ? t.accent : t.border}`,
+            background: chord.favorite ? t.accentSoft : t.bg,
+            color: chord.favorite ? t.accent : t.textTertiary,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          {chord.favorite ? "★" : "☆"}
+          <Icon name={chord.favorite ? "starFill" : "star"} size={17} />
         </button>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          META INFO BAR
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* Meta badges */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           gap: "8px",
-          padding: "10px 16px",
-          borderBottom: `1px solid ${t.border}`,
+          padding: "12px 16px",
+          borderBottom: `1px solid ${t.rule}`,
           background: t.surface,
           flexWrap: "wrap",
           flexShrink: 0,
+          position: "relative",
+          zIndex: 2,
         }}
       >
-        <span
-          style={{
-            padding: "6px 12px",
-            borderRadius: "8px",
-            background: t.accentSoft,
-            color: t.accent,
-            fontSize: "13px",
-            fontWeight: "600",
-          }}
-        >
-          Key: {chord.key}
-        </span>
+        <Badge theme={t} tone="accent">
+          Key · {chord.key}
+        </Badge>
 
         {chord.capo && (
-          <span
-            style={{
-              padding: "6px 12px",
-              borderRadius: "8px",
-              background: t.surfaceHover,
-              color: t.textSecondary,
-              fontSize: "13px",
-              fontWeight: "600",
-            }}
-          >
-            Capo: {chord.capo}
-          </span>
+          <Badge theme={t} tone="muted">
+            Capo · {chord.capo}
+          </Badge>
         )}
 
         {transpose !== 0 && (
-          <span
-            style={{
-              padding: "6px 12px",
-              borderRadius: "8px",
-              background: "rgba(34,197,94,0.15)",
-              color: t.success,
-              fontSize: "13px",
-              fontWeight: "600",
-            }}
-          >
-            Transpose: {transpose > 0 ? "+" : ""}
+          <Badge theme={t} tone="success">
+            Transposed {transpose > 0 ? "+" : ""}
             {transpose}
-          </span>
+          </Badge>
         )}
 
         {scrollMode && (
-          <span
-            style={{
-              padding: "6px 12px",
-              borderRadius: "8px",
-              background: "rgba(251,191,36,0.15)",
-              color: "#fbbf24",
-              fontSize: "13px",
-              fontWeight: "600",
-              animation: "pulse 1.5s infinite",
-            }}
-          >
-            ⏬ Auto Play
-          </span>
+          <Badge theme={t} tone="warning" pulse>
+            ⏵ Auto-scrolling
+          </Badge>
         )}
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          CHORD CONTENT AREA
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* Content */}
       <div
         id="fullscreen-chord-content"
         style={{
           flex: 1,
           overflow: "auto",
-          padding: "20px 16px 100px",
+          padding: "40px 24px 140px",
           WebkitOverflowScrolling: "touch",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        <pre
+        <div
           style={{
-            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-            fontSize: `${fontSize}px`,
-            lineHeight: "1.8",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-            margin: 0,
-            color: t.text,
-            maxWidth: "800px",
-            marginLeft: "auto",
-            marginRight: "auto",
+            maxWidth: "820px",
+            margin: "0 auto",
           }}
         >
-          {displayProgression}
-        </pre>
+          {/* Opening flourish */}
+          <div
+            aria-hidden
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px",
+              color: t.ornament,
+              opacity: 0.6,
+              marginBottom: "32px",
+            }}
+          >
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.35 }} />
+            <span style={{ fontSize: "11px", letterSpacing: "0.4em" }}>✦ ✦ ✦</span>
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.35 }} />
+          </div>
+
+          <pre
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: `${fontSize}px`,
+              fontWeight: 500,
+              lineHeight: 1.9,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              margin: 0,
+              color: t.text,
+              letterSpacing: "0.01em",
+            }}
+          >
+            {displayProgression}
+          </pre>
+
+          {/* Closing flourish */}
+          <div
+            aria-hidden
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px",
+              color: t.ornament,
+              opacity: 0.6,
+              marginTop: "48px",
+            }}
+          >
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.35 }} />
+            <span style={{ fontSize: "11px", letterSpacing: "0.4em" }}>✦</span>
+            <span style={{ flex: 1, height: "1px", background: "currentColor", opacity: 0.35 }} />
+          </div>
+        </div>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          BOTTOM CONTROL BAR
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* Bottom controls */}
       <div
         style={{
           position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
-          background: t.surface,
-          borderTop: `1px solid ${t.border}`,
-          padding: "12px 16px",
-          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+          background: `linear-gradient(to top, ${t.surface} 70%, ${t.surface}e6 100%)`,
+          borderTop: `1px solid ${t.rule}`,
+          padding: "14px 16px",
+          paddingBottom: "max(14px, env(safe-area-inset-bottom))",
+          backdropFilter: "blur(14px)",
+          zIndex: 3,
         }}
       >
         <div
@@ -340,42 +357,24 @@ const FullscreenView = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            maxWidth: "600px",
+            maxWidth: "620px",
             margin: "0 auto",
-            gap: "8px",
+            gap: "10px",
           }}
         >
-          {/* Font Size Controls */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              background: t.bg,
-              padding: "4px",
-              borderRadius: "10px",
-              border: `1px solid ${t.border}`,
-            }}
-          >
-            <button
+          {/* Font size */}
+          <ControlGroup theme={t}>
+            <CircleBtn
+              theme={t}
               onClick={() => setFontSize((prev) => Math.max(prev - 2, 12))}
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                border: "none",
-                background: t.surface,
-                color: t.text,
-                fontSize: "14px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
+              aria-label="Decrease text"
             >
-              A-
-            </button>
+              <Icon name="aSmall" size={14} />
+            </CircleBtn>
             <span
+              className="catalog-num"
               style={{
-                width: "32px",
+                minWidth: "26px",
                 textAlign: "center",
                 fontSize: "12px",
                 color: t.textSecondary,
@@ -383,143 +382,111 @@ const FullscreenView = ({
             >
               {fontSize}
             </span>
-            <button
-              onClick={() => setFontSize((prev) => Math.min(prev + 2, 36))}
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                border: "none",
-                background: t.surface,
-                color: t.text,
-                fontSize: "14px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
+            <CircleBtn
+              theme={t}
+              onClick={() => setFontSize((prev) => Math.min(prev + 2, 40))}
+              aria-label="Increase text"
             >
-              A+
-            </button>
-          </div>
+              <Icon name="aBig" size={16} />
+            </CircleBtn>
+          </ControlGroup>
 
-          {/* Transpose Controls */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              background: t.bg,
-              padding: "4px",
-              borderRadius: "10px",
-              border: `1px solid ${t.border}`,
-            }}
-          >
-            <button
+          {/* Transpose */}
+          <ControlGroup theme={t}>
+            <CircleBtn
+              theme={t}
               onClick={() => handleTranspose(-1)}
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                border: "none",
-                background: t.surface,
-                color: t.text,
-                fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
+              aria-label="Transpose down"
             >
-              −
-            </button>
+              <Icon name="minus" size={14} />
+            </CircleBtn>
             <span
               onClick={() => setTranspose(0)}
+              title="Reset"
+              className="catalog-num"
               style={{
-                width: "40px",
+                minWidth: "40px",
                 textAlign: "center",
                 fontSize: "13px",
-                fontWeight: "700",
+                fontWeight: 700,
                 color: transpose !== 0 ? t.accent : t.textSecondary,
                 cursor: "pointer",
               }}
             >
-              {transpose === 0
-                ? "0"
-                : transpose > 0
-                ? `+${transpose}`
-                : transpose}
+              {transpose === 0 ? "±0" : transpose > 0 ? `+${transpose}` : `${transpose}`}
             </span>
-            <button
+            <CircleBtn
+              theme={t}
               onClick={() => handleTranspose(1)}
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                border: "none",
-                background: t.surface,
-                color: t.text,
-                fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
+              aria-label="Transpose up"
             >
-              +
-            </button>
-          </div>
+              <Icon name="plus" size={14} />
+            </CircleBtn>
+          </ControlGroup>
 
-          {/* Auto-scroll Toggle */}
+          {/* Auto-scroll */}
           <button
             onClick={() => setScrollMode((prev) => !prev)}
+            aria-label="Toggle auto-scroll"
             style={{
               width: "44px",
               height: "44px",
-              borderRadius: "10px",
+              borderRadius: "12px",
               border: `1px solid ${scrollMode ? t.accent : t.border}`,
               background: scrollMode ? t.accentSoft : t.bg,
               color: scrollMode ? t.accent : t.text,
-              fontSize: "18px",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transition: "all 0.2s",
             }}
           >
-            ⏬
+            <Icon name="scroll" size={18} />
           </button>
 
-          {/* Copy Button */}
+          {/* Copy */}
           <button
             onClick={handleCopy}
+            aria-label="Copy chord sheet"
             style={{
               width: "44px",
               height: "44px",
-              borderRadius: "10px",
-              border: `1px solid ${t.border}`,
-              background: t.bg,
-              color: t.text,
-              fontSize: "18px",
+              borderRadius: "12px",
+              border: `1px solid ${copied ? t.success : t.border}`,
+              background: copied ? `${t.success}18` : t.bg,
+              color: copied ? t.success : t.text,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transition: "all 0.2s",
             }}
           >
-            📋
+            <Icon name={copied ? "check" : "copy"} size={17} />
           </button>
         </div>
 
-        {/* Scroll Speed Slider (visible only when auto-scroll is on) */}
         {scrollMode && (
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "12px",
-              marginTop: "12px",
-              maxWidth: "300px",
+              gap: "14px",
+              marginTop: "14px",
+              maxWidth: "320px",
               marginLeft: "auto",
               marginRight: "auto",
+              animation: "riseIn 0.3s var(--ease-out)",
             }}
           >
-            <span style={{ fontSize: "12px", color: t.textSecondary }}>🐢</span>
+            <span
+              className="eyebrow"
+              style={{ color: t.textTertiary, fontSize: "9px" }}
+            >
+              Slow
+            </span>
             <input
               type="range"
               min="10"
@@ -528,39 +495,116 @@ const FullscreenView = ({
               onChange={(e) => setScrollSpeed(Number(e.target.value))}
               style={{
                 flex: 1,
-                height: "4px",
-                borderRadius: "2px",
+                height: "3px",
+                borderRadius: "3px",
                 background: t.border,
                 cursor: "pointer",
                 accentColor: t.accent,
               }}
             />
-            <span style={{ fontSize: "12px", color: t.textSecondary }}>🐇</span>
+            <span
+              className="eyebrow"
+              style={{ color: t.textTertiary, fontSize: "9px" }}
+            >
+              Fast
+            </span>
           </div>
         )}
       </div>
 
-      {/* Keyboard Shortcuts Hint (desktop only) */}
+      {/* Desktop keyboard hints */}
       <div
         style={{
           position: "fixed",
-          bottom: "100px",
-          left: "16px",
-          fontSize: "11px",
+          bottom: "104px",
+          left: "20px",
+          fontSize: "10px",
           color: t.textTertiary,
           display: "none",
+          letterSpacing: "0.1em",
+          fontFamily: "var(--font-mono)",
         }}
         className="keyboard-hints"
       >
         <style>{`
-          @media (min-width: 768px) {
-            .keyboard-hints { display: block !important; }
+          @media (min-width: 900px) {
+            .keyboard-hints { display: flex !important; gap: 14px; }
           }
         `}</style>
-        ESC close • ↑↓ transpose • +/- zoom • Space scroll
+        <span>ESC · close</span>
+        <span>↑↓ · transpose</span>
+        <span>+/− · zoom</span>
+        <span>␣ · scroll</span>
       </div>
     </div>
   );
 };
+
+const Badge = ({ theme: t, tone = "muted", pulse, children }) => {
+  const map = {
+    accent: { bg: t.accentSoft, color: t.accent },
+    muted: { bg: t.surfaceHover, color: t.textSecondary },
+    success: { bg: `${t.success}22`, color: t.success },
+    warning: { bg: `${t.warning}20`, color: t.warning },
+  };
+  const c = map[tone];
+  return (
+    <span
+      style={{
+        padding: "5px 11px",
+        borderRadius: "6px",
+        background: c.bg,
+        color: c.color,
+        fontSize: "11px",
+        fontWeight: 600,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        animation: pulse ? "pulse 1.8s ease-in-out infinite" : "none",
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+const ControlGroup = ({ theme: t, children }) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "2px",
+      background: t.bg,
+      padding: "4px",
+      borderRadius: "12px",
+      border: `1px solid ${t.border}`,
+    }}
+  >
+    {children}
+  </div>
+);
+
+const CircleBtn = ({ theme: t, onClick, children, ...rest }) => (
+  <button
+    onClick={onClick}
+    style={{
+      width: "34px",
+      height: "32px",
+      borderRadius: "9px",
+      border: "none",
+      background: "transparent",
+      color: t.text,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "background 0.15s",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.background = t.surfaceHover)}
+    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+    {...rest}
+  >
+    {children}
+  </button>
+);
 
 export default FullscreenView;

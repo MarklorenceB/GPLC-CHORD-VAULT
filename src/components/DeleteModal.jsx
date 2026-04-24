@@ -1,9 +1,5 @@
-// components/DeleteModal.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-// DELETE CONFIRMATION MODAL COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════
-
 import React from "react";
+import Icon from "./Icon";
 
 const DeleteModal = ({ theme: t, isOpen, onClose, onConfirm, isLoading }) => {
   if (!isOpen) return null;
@@ -14,14 +10,14 @@ const DeleteModal = ({ theme: t, isOpen, onClose, onConfirm, isLoading }) => {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.6)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(12, 9, 6, 0.6)",
+        backdropFilter: "blur(6px)",
         zIndex: 300,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "20px",
-        animation: "fadeIn 0.2s ease",
+        animation: "fadeIn 0.2s var(--ease-out)",
       }}
     >
       <div
@@ -29,86 +25,99 @@ const DeleteModal = ({ theme: t, isOpen, onClose, onConfirm, isLoading }) => {
         style={{
           background: t.surface,
           borderRadius: "20px",
-          padding: "24px",
+          padding: "28px 24px 24px",
           textAlign: "center",
-          maxWidth: "320px",
+          maxWidth: "340px",
           width: "100%",
-          animation: "scaleIn 0.2s ease",
+          animation: "scaleIn 0.25s var(--ease-out)",
+          border: `1px solid ${t.borderLight}`,
+          boxShadow: "0 30px 80px -20px rgba(0,0,0,0.5)",
         }}
       >
         <div
           style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "14px",
-            background: "rgba(239,68,68,0.1)",
+            width: "52px",
+            height: "52px",
+            borderRadius: "999px",
+            background: t.dangerSoft,
+            color: t.danger,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 auto 16px",
-            fontSize: "28px",
+            margin: "0 auto 18px",
           }}
         >
-          🗑️
+          <Icon name="trash" size={22} />
+        </div>
+
+        <div
+          className="eyebrow"
+          style={{ color: t.ornament, marginBottom: "8px" }}
+        >
+          · Confirm ·
         </div>
 
         <h3
           style={{
-            fontSize: "18px",
-            fontWeight: "600",
-            marginBottom: "8px",
+            fontFamily: "var(--font-display)",
+            fontSize: "24px",
+            fontWeight: 400,
+            fontStyle: "italic",
+            fontVariationSettings: '"opsz" 72',
+            letterSpacing: "-0.01em",
             margin: "0 0 8px 0",
+            color: t.text,
           }}
         >
-          Delete Chord?
+          Remove this hymn?
         </h3>
 
         <p
           style={{
             color: t.textSecondary,
             fontSize: "14px",
-            marginBottom: "20px",
-            margin: "0 0 20px 0",
+            lineHeight: 1.55,
+            margin: "0 0 22px 0",
           }}
         >
-          This action cannot be undone.
+          Once struck from the book, this entry cannot be restored.
         </p>
 
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: "12px",
+            gap: "10px",
           }}
         >
           <button
             onClick={onClose}
             disabled={isLoading}
             style={{
-              padding: "14px",
-              borderRadius: "12px",
+              padding: "13px",
+              borderRadius: "11px",
               border: `1px solid ${t.border}`,
               background: "transparent",
               color: t.text,
-              fontSize: "15px",
-              fontWeight: "600",
+              fontSize: "14px",
+              fontWeight: 600,
               cursor: isLoading ? "not-allowed" : "pointer",
               opacity: isLoading ? 0.5 : 1,
             }}
           >
-            Cancel
+            Keep
           </button>
           <button
             onClick={onConfirm}
             disabled={isLoading}
             style={{
-              padding: "14px",
-              borderRadius: "12px",
+              padding: "13px",
+              borderRadius: "11px",
               border: "none",
               background: t.danger,
               color: "#fff",
-              fontSize: "15px",
-              fontWeight: "600",
+              fontSize: "14px",
+              fontWeight: 600,
               cursor: isLoading ? "not-allowed" : "pointer",
               opacity: isLoading ? 0.7 : 1,
               display: "flex",
@@ -120,9 +129,9 @@ const DeleteModal = ({ theme: t, isOpen, onClose, onConfirm, isLoading }) => {
             {isLoading && (
               <span
                 style={{
-                  width: "14px",
-                  height: "14px",
-                  border: "2px solid rgba(255,255,255,0.3)",
+                  width: "13px",
+                  height: "13px",
+                  border: "2px solid rgba(255,255,255,0.4)",
                   borderTopColor: "#fff",
                   borderRadius: "50%",
                   animation: "spin 0.8s linear infinite",
